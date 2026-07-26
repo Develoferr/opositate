@@ -1,0 +1,21 @@
+# Build & IDE noise
+.gradle/
+build/
+**/build/
+.idea/
+.kotlin/
+captures/
+*.iml
+local.properties
+
+# Generated / large binaries
+**/*.apk
+**/*.aab
+**/*.dex
+**/*.so
+**/google-services.json
+
+# Keep promo assets out of AI context if ever nested
+**/Promoción*/**
+**/*.mp4
+**/*.gif

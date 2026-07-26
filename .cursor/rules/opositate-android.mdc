@@ -1,0 +1,93 @@
+---
+description: Arquitectura, stack y convenciones de Opositate (Android/Kotlin)
+alwaysApply: true
+---
+
+# Opositate
+
+App Android de preparación de tests psicotécnicos. Paquete: `com.develofer.opositate`.
+
+## Stack (actual)
+
+- Kotlin 2.4 + AGP 9 (Kotlin built-in; **no** aplicar `org.jetbrains.kotlin.android`)
+- Jetpack Compose + Material 3 + Compose BOM
+- Hilt + KSP (`hilt-lifecycle-viewmodel-compose` para `hiltViewModel`)
+- Navigation Compose type-safe (`@Serializable` destinations)
+- Firebase Auth, Firestore, Analytics, Crashlytics (plugin; reporting en código pendiente)
+- DataStore Preferences (tema / inicio de semana)
+- Lottie; charts: `chart` (radar/pie) + `compose-charts` (line/column)
+- minSdk 30, compile/targetSdk 37, JVM toolchain 17
+- Gradle Daemon JVM criteria (`gradle/gradle-daemon-jvm.properties`) + Foojay resolver
+
+Validar: `./gradlew :app:assembleDebug`
+
+## Arquitectura de paquetes
+
+**Feature-based** con capas internas. No migrar a `data/`/`domain/`/`ui/` top-level.
+
+```
+com.develofer.opositate/
+  feature/<nombre>/{data,domain,presentation}/
+  main/          # shell: MainActivity, Nav, AppBar, NavBar, coordinators
+  di/            # módulos Hilt
+  ui/theme/      # Color, Theme, Type (Compose)
+  content/testcatalog/  # autoría de catálogo (debug)
+  utils/
+```
+
+Features: `login`, `profile`, `test`, `lesson` (placeholder), `calendar`, `settings`.
+
+Flujo de datos:
+
+```
+Firestore / DataStore → Repository → UseCase → ViewModel (StateFlow) → Compose
+```
+
+| Dato | Origen | Offline |
+|------|--------|---------|
+| Banco `tests` | Firestore | No (roadmap) |
+| `testAsks`, `scores`, `solvedTests*` | Firestore | No |
+| Auth | Firebase Auth | Sesión local |
+| Tema / semana | DataStore | Sí |
+| Abilities/tasks UI | `TestDataProvider` en código | Sí |
+| Calendario | Local | Sí |
+
+## Catálogo de tests (seeder A+C)
+
+Fuente única: `content/test-catalog/ability-N.json` (también assets vía `sourceSets`).
+
+Forma del documento Firestore `tests/{abilityId}`:
+
+```json
+{ "abilityId": 0, "tasks": [ { "taskId", "difficultyLevels": [ { "difficultyId", "tests": [ { "testId", "questions": [...] } ] } ] } ] }
+```
+
+- **A (app debug):** menú ⋮ → «Subir catálogo de tests» solo si `BuildConfig.DEBUG`.  
+  `UploadTestCatalogUseCase` + `TestCatalogAssetDataSource`.
+- **C (PC):** `tools/upload-test-catalog/` (Firebase Admin). Ver su README. Credenciales gitignored.
+
+No volver a meter bancos hardcodeados en Kotlin ni acciones de subida en release.
+
+## UI / temas
+
+- Tokens Compose en `ui/theme` (`Color.kt`, `Theme.kt`, `Type.kt`).
+- `res/values/colors.xml` legado/splash; preferir Compose.
+- Tema auto/manual vía DataStore → `MainViewModel.themePreferences` → `OpositateTheme`.
+- Componentes compartidos en `main/components` (AppBar, NavBar, dialogs, cards, Lottie).
+- Evitar hardcodes de color en pantallas; pasar por theme cuando se toque UI.
+
+## Convenciones
+
+- Responder en español si el usuario trabaja en español.
+- UI Compose; lógica en ViewModels + UseCases.
+- No tocar `google-services.json` ni service accounts.
+- Cambios pequeños alineados con el patrón del feature.
+- Cursor = código/refactor; Android Studio = emulador/Logcat/Profiler.
+
+## Deuda conocida (no hacer salvo petición)
+
+- Offline: Firestore persistence / Room cache del catálogo
+- Uniformar `*UiState` en `TestViewModel`, `SettingsViewModel`, `MainViewModel`
+- Domain no debe importar UiState de presentation (calendar)
+- DI: preferir `@Binds`; naming (`component` vs `components`, typo Reathenticate)
+- Cablear Crashlytics en código; alinear `colors.xml` con Compose
