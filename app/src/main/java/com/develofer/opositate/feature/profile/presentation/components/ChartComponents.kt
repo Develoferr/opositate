@@ -136,7 +136,6 @@ fun ColumnChartComponent(
                     color = if (isDarkTheme) Gray700 else Color.DarkGray,
                     fontWeight = FontWeight.W400
                 ),
-                rotationDegreeOnSizeConflict = 0.0f,
                 enabled = true
             ),
             indicatorProperties = HorizontalIndicatorProperties(

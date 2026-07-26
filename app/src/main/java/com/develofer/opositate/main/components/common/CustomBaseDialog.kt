@@ -17,6 +17,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.develofer.opositate.R
 import kotlinx.coroutines.delay
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun SuccessDialog(
@@ -95,7 +96,7 @@ fun CustomBaseAlertDialog(
     }
     if (delayTime > 0) {
         LaunchedEffect(isDialogVisible) {
-            delay(delayTime)
+            delay(delayTime.milliseconds)
             onDismiss()
         }
     }
@@ -116,7 +117,7 @@ fun CustomBaseDialog(
     )
     if (delayTime > 0) {
         LaunchedEffect(isDialogVisible) {
-            delay(delayTime)
+            delay(delayTime.milliseconds)
             onDismiss()
         }
     }

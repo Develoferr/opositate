@@ -12,10 +12,10 @@ import com.develofer.opositate.utils.StringConstants.EMPTY_STRING
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.suspendCancellableCoroutine
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 @Singleton
 class UserRepositoryImpl @Inject constructor(
@@ -30,7 +30,7 @@ class UserRepositoryImpl @Inject constructor(
         return if (user?.displayName.isNullOrEmpty()) {
             Result.Error(Exception(resourceProvider.getString(R.string.error_message__no_display_name)))
         } else {
-            Result.Success(user?.displayName ?: EMPTY_STRING)
+            Result.Success(user.displayName ?: EMPTY_STRING)
         }
     }
 
@@ -39,7 +39,7 @@ class UserRepositoryImpl @Inject constructor(
         return if (user?.email.isNullOrEmpty()) {
             Result.Error(Exception(resourceProvider.getString(R.string.error_message__no_email)))
         } else {
-            Result.Success(user?.email ?: EMPTY_STRING)
+            Result.Success(user.email ?: EMPTY_STRING)
         }
     }
 
@@ -48,7 +48,7 @@ class UserRepositoryImpl @Inject constructor(
         return if (user?.uid.isNullOrBlank()) {
             Result.Error(Exception(resourceProvider.getString(R.string.error_message__user_not_authenticated)))
         } else {
-            Result.Success(user?.uid ?: EMPTY_STRING)
+            Result.Success(user.uid)
         }
     }
 
@@ -58,14 +58,15 @@ class UserRepositoryImpl @Inject constructor(
             Result.Error(Exception(resourceProvider.getString(R.string.error_message__user_not_authenticated)))
         } else {
             val userScoreDocument = getUserScoreDocumentReference(userId)
+                ?: return Result.Error(Exception(resourceProvider.getString(R.string.error_message__create_score_document_failed)))
             val userScores: List<Map<String, Any>> = getUserScoresMap(abilityIdList)
-            suspendCoroutine { continuation ->
-                userScoreDocument?.set(
+            suspendCancellableCoroutine { continuation ->
+                userScoreDocument.set(
                     mapOf(
                         resourceProvider.getString(R.string.firebase_constant__level) to 0,
                         resourceProvider.getString(R.string.firebase_constant__scores) to userScores
                     )
-                )?.addOnCompleteListener { createTask ->
+                ).addOnCompleteListener { createTask ->
                     if (createTask.isSuccessful) {
                         continuation.resume(Result.Success(Unit))
                     } else {
@@ -74,7 +75,7 @@ class UserRepositoryImpl @Inject constructor(
                         continuation.resume(Result.Error(Exception(errorMessage)))
                     }
                 }
-            } ?: Result.Error(Exception(resourceProvider.getString(R.string.error_message__create_score_document_failed)))
+            }
         }
     }
 
@@ -84,13 +85,14 @@ class UserRepositoryImpl @Inject constructor(
             Result.Error(Exception(resourceProvider.getString(R.string.error_message__user_not_authenticated)))
         } else {
             val testAsksDocument = getTestAsksDocumentReference(userId)
+                ?: return Result.Error(Exception(resourceProvider.getString(R.string.error_message__create_score_document_failed)))
             val testAsks: List<Map<String, Any>> = getTestAsksMap(abilityIdList)
-            suspendCoroutine { continuation ->
-                testAsksDocument?.set(
+            suspendCancellableCoroutine { continuation ->
+                testAsksDocument.set(
                     mapOf(
                         resourceProvider.getString(R.string.firebase_constant__test_asks) to testAsks
                     )
-                )?.addOnCompleteListener { createTask ->
+                ).addOnCompleteListener { createTask ->
                     if (createTask.isSuccessful) {
                         continuation.resume(Result.Success(Unit))
                     } else {
@@ -99,19 +101,20 @@ class UserRepositoryImpl @Inject constructor(
                         continuation.resume(Result.Error(Exception(errorMessage)))
                     }
                 }
-            } ?: Result.Error(Exception(resourceProvider.getString(R.string.error_message__create_score_document_failed)))
+            }
         }
     }
 
     override suspend fun getUserScoreResponse(): Result<UserScoresResponse?> {
         val userId = getUser()?.uid
         return if (userId != null) {
-            suspendCoroutine { continuation ->
+            suspendCancellableCoroutine { continuation ->
                 val documentReference = getUserScoreDocumentReference(userId)
                 documentReference?.get()
                     ?.addOnSuccessListener { document ->
                         if (document.exists()) {
-                            val userScoresResponse = document.toObject(UserScoresResponse::class.java)
+                            val userScoresResponse =
+                                document.toObject(UserScoresResponse::class.java)
                             continuation.resume(Result.Success(userScoresResponse))
                         } else {
                             continuation.resume(Result.Error(Exception(resourceProvider.getString(R.string.error_message__no_scores_document))))
@@ -129,12 +132,13 @@ class UserRepositoryImpl @Inject constructor(
     override suspend fun getTestAsksResponse(): Result<CompleteTestAsksList?> {
         val userId = getUser()?.uid
         return if (userId != null) {
-            suspendCoroutine { continuation ->
+            suspendCancellableCoroutine { continuation ->
                 val documentReference = getTestAsksDocumentReference(userId)
                 documentReference?.get()
                     ?.addOnSuccessListener { document ->
                         if (document.exists()) {
-                            val testAsksResponse = document.toObject(CompleteTestAsksResult::class.java)?.toDomain()
+                            val testAsksResponse =
+                                document.toObject(CompleteTestAsksResult::class.java)?.toDomain()
                             continuation.resume(Result.Success(testAsksResponse))
                         } else {
                             continuation.resume(Result.Error(Exception(resourceProvider.getString(R.string.error_message__no_asks_document))))
@@ -158,7 +162,7 @@ class UserRepositoryImpl @Inject constructor(
 
         abilityIdList.forEach { abilityId ->
             val abilityIdValue = abilityId[abilityIdString] as? Int ?: return@forEach
-            val tasks = abilityId[tasksString] as? List<Int> ?: return@forEach
+            val tasks = abilityId[tasksString] as? List<*> ?: return@forEach
             val tasksWithScores = tasks.map { task ->
                 mapOf(
                     resourceProvider.getString(R.string.firebase_constant__task_id) to (task),
@@ -184,7 +188,7 @@ class UserRepositoryImpl @Inject constructor(
 
         abilityIdList.forEach { abilityId ->
             val abilityIdValue = abilityId[abilityIdString] as? Int ?: return@forEach
-            val tasks = abilityId[tasksString] as? List<Int> ?: return@forEach
+            val tasks = abilityId[tasksString] as? List<*> ?: return@forEach
             val tasksAsks = tasks.map { task ->
                 mapOf(
                     resourceProvider.getString(R.string.firebase_constant__task_id) to (task),
