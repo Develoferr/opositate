@@ -1,0 +1,12 @@
+{
+  "name": "upload-test-catalog",
+  "private": true,
+  "type": "module",
+  "description": "Upload Opositate test catalog JSON to Firestore via Firebase Admin",
+  "scripts": {
+    "upload": "node upload.mjs"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.4.0"
+  }
+}

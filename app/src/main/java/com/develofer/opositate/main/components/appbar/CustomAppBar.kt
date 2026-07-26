@@ -18,7 +18,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarColors
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
@@ -41,13 +41,13 @@ fun CustomAppBar(
     isDarkTheme: Boolean,
     actions: @Composable () -> Unit = {},
     logout: () -> Unit,
-    saveTests: () -> Unit
+    uploadTestCatalog: (() -> Unit)? = null,
 ) {
     var expanded by remember { mutableStateOf(false) }
 
     CenterAlignedTopAppBar(
         windowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Top),
-        colors = TopAppBarColors(
+        colors = TopAppBarDefaults.topAppBarColors(
             containerColor =
                 if (isDarkTheme) MaterialTheme.colorScheme.background
                     else MaterialTheme.colorScheme.primary,
@@ -103,19 +103,15 @@ fun CustomAppBar(
                         expanded = false
                     }
                 )
-                DropdownMenuItem(
-                    text = { Text("Save Tests") },
-                    onClick = {
-                        saveTests()
-                        expanded = false
-                    }
-                )
-                DropdownMenuItem(
-                    text = { Text("Opción 3") },
-                    onClick = {
-                        expanded = false
-                    }
-                )
+                if (uploadTestCatalog != null) {
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.custom_app_bar__menu__upload_test_catalog)) },
+                        onClick = {
+                            uploadTestCatalog()
+                            expanded = false
+                        }
+                    )
+                }
             }
         }
     )

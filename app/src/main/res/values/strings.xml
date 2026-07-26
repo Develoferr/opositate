@@ -154,6 +154,7 @@
     <!-- Custom App Bar -->
     <string name="custom_app_bar__content_description__menu">Menu</string>
     <string name="custom_app_bar__content_description__more_options">More options</string>
+    <string name="custom_app_bar__menu__upload_test_catalog">Subir catálogo de tests</string>
 
     <!-- Study Item List -->
     <string name="study_item_list__content_description__locked">Locked Icon</string>

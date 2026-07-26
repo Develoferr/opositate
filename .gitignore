@@ -53,3 +53,10 @@ google-services.json
 
 # Misc
 *.DS_Store
+# AI / IDE generated
+.artifacts/
+
+# Content upload tool (Firebase Admin)
+tools/upload-test-catalog/node_modules/
+tools/upload-test-catalog/serviceAccount.json
+**/firebase-adminsdk*.json

@@ -3,6 +3,7 @@ package com.develofer.opositate.main
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.develofer.opositate.R
+import com.develofer.opositate.content.testcatalog.domain.UploadTestCatalogUseCase
 import com.develofer.opositate.feature.settings.domain.usecase.GetThemePreferencesUseCase
 import com.develofer.opositate.main.data.model.Result
 import com.develofer.opositate.main.data.provider.ResourceProvider
@@ -11,6 +12,7 @@ import com.develofer.opositate.main.domain.LogoutUseCase
 import com.develofer.opositate.main.navigation.LoginNavigation
 import com.develofer.opositate.main.navigation.ProfileNavigation
 import com.develofer.opositate.main.navigation.Route
+import com.develofer.opositate.main.utils.ThemePreferences
 import com.google.firebase.auth.FirebaseUser
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,7 +27,8 @@ class MainViewModel @Inject constructor(
     private val getThemePreferencesUseCase: GetThemePreferencesUseCase,
     private val getUserUseCase: GetUserUseCase,
     private val logoutUseCase: LogoutUseCase,
-    resourceProvider: ResourceProvider
+    private val uploadTestCatalogUseCase: UploadTestCatalogUseCase,
+    resourceProvider: ResourceProvider,
 ) : ViewModel() {
 
     private val _isUserNotRetrieved = MutableStateFlow(true)
@@ -80,7 +83,6 @@ class MainViewModel @Inject constructor(
                 is Result.Loading -> { }
             }
         }
-
     }
 
     fun logout() {
@@ -109,6 +111,12 @@ class MainViewModel @Inject constructor(
             ProfileNavigation
         } else {
             LoginNavigation
+        }
+    }
+
+    fun uploadTestCatalog(abilityId: Int = 0) {
+        viewModelScope.launch {
+            uploadTestCatalogUseCase(abilityId)
         }
     }
 }

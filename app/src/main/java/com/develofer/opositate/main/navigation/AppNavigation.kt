@@ -7,12 +7,13 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.toRoute
+import com.develofer.opositate.BuildConfig
 import com.develofer.opositate.feature.calendar.presentation.screen.CalendarScreen
 import com.develofer.opositate.feature.lesson.LessonScreen
 import com.develofer.opositate.feature.login.presentation.screen.LoginScreen
@@ -70,9 +71,11 @@ fun AppNavigation(
                                 mainViewModel.logout()
                                 navigateToLogin(navHostController)
                             },
-                            saveTests = {
-                                mainViewModel.saveTests()
-                            }
+                            uploadTestCatalog = if (BuildConfig.DEBUG) {
+                                { mainViewModel.uploadTestCatalog() }
+                            } else {
+                                null
+                            },
                         )
                     }
                 }
