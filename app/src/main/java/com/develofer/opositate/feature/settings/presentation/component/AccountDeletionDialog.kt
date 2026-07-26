@@ -19,7 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.develofer.opositate.feature.login.presentation.component.CustomLoginTextField
 import com.develofer.opositate.main.components.common.LoadingButton
 import com.develofer.opositate.main.data.model.UiResult

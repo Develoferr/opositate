@@ -30,7 +30,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.develofer.opositate.R
 import com.develofer.opositate.feature.login.presentation.component.CustomLoginLogo
 import com.develofer.opositate.feature.login.presentation.component.CustomLoginTextButton

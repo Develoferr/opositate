@@ -5,7 +5,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.develofer.opositate.R
 import com.develofer.opositate.feature.calendar.presentation.components.CalendarContent
 import com.develofer.opositate.feature.calendar.presentation.viewmodel.CalendarViewModel
